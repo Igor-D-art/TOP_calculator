@@ -3,9 +3,13 @@ const buttons = document.querySelectorAll("button");
 let inputValue = []; // raw input 
 let inputString = ''; 
 let defaultOperand=0;
-let operand;
+let firstOperand;
+let secondOperand; 
 let operator;
 let result; 
+
+let numbers = /\d/;
+let operators = /\+|\-|\*|\/|\=/; 
 
 let input = buttons.forEach(button => {
     button.addEventListener('click', ()=>{
@@ -18,44 +22,66 @@ let input = buttons.forEach(button => {
 });
 
 function parseInput(){
-   let numbers = /\d/g;
-   let operators = /\+|\-|\*|\/|\=/g; 
-   let firstOperIndex = inputString.indexOf(operators);
 
-   console.log(firstOperIndex);
+    operator = inputString.match(operators);
+    operIndex = inputString.indexOf(operator);
+    console.log('Index of the first operator= ' + operIndex);
+  
+    if (operIndex>0){
+        firstOperand=parseFloat(inputString.slice(0, operIndex));
+    } else if (operIndex==0){
+        firstOperand=defaultOperand;
+    } else {
+        firstOperand=parseFloat(inputString);
+    };
 
-   number = inputString.match(numbers); 
-   if (number!==null){
-       operand = parseFloat(number.join(''));
-   } else {
-       operand=defaultOperand;
-   };
+    if (operIndex>=0 && (operIndex+1)!==undefined){
+        secondOperand = parseFloat(inputString.slice(operIndex+1));
+    };
 
-   operator = inputString.match(operators);
-   if (operator!==null){
-       inputString='';
-   }
-    console.log(operator);
-    console.log("Default oprand= " + defaultOperand);
-    console.log("Operator =" + operator);
-    console.log("Operand =" + operand);
-    console.log("Input s tring after = ")+ inputString;
 
-   display.value=operand;
-   return operand + calculate();
+    console.log('First operand= ' + firstOperand);
+    console.log('Second operand= ' + secondOperand);
+    display.value=inputString;
+    return [firstOperand, secondOperand] + calculate();
 };
 
 function calculate(){
-    if (operator=='+'){
+    if (operator==`+` && secondOperand!==undefined && secondOperand!==NaN){
        addition();
     };
 };
 
 function addition(){
-   result = defaultOperand+operand;
-   defaultOperand=operand; 
-   display.value = result;
-   operand=0;
-   inputString='';
-   console.log("Result = " + result + "\n ");
-}
+
+  result = firstOperand + secondOperand;
+//   firstOperand=result;
+  
+  console.log('First operand= ' + firstOperand);
+  console.log(result);
+  if (result!==NaN){
+      display.value = result;
+      inputValue=[]; 
+    }else {
+          display.value=inputString;
+      };
+//   inputValue=[]; // тут нужен if, иначе обнуляется само
+  
+};
+
+
+
+
+
+
+ // console.log("Default oprand= " + defaultfirstOperand);
+    // console.log("Operator =" + operator);
+    // console.log("firstOperand =" + firstOperand);
+    // console.log("Input string after = ")+ inputString;
+
+    // operIndex = function(){
+    //     operIndexArr =[];
+    //     for(i=1; i<operator.length; i++){
+    //         operIndex[i]=inputString.indexOf(operator);
+    //     };
+    // }; 
