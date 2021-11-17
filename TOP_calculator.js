@@ -1,87 +1,144 @@
 const display = document.querySelector('.display');
-const buttons = document.querySelectorAll("button");
-let inputValue = []; // raw input 
-let inputString = ''; 
+const numbers = document.querySelectorAll('.numbers');
+const operators = document.querySelectorAll('.operators');
+const equalSign = document.querySelector('.equal-sign');
+const ac = document.querySelector('.clear-all');
+const decimal = document.querySelector('.decimal');
+let inputArr = []; // raw input 
+let operArr =[];
+let currentOper;
+let numString;; 
 let defaultOperand=0;
-let firstOperand;
-let secondOperand; 
-let operator;
+let previousOperand=0;
+let nextOperand=0;
 let result; 
 
-let numbers = /\d/;
-let operators = /\+|\-|\*|\/|\=/; 
 
-let input = buttons.forEach(button => {
-    button.addEventListener('click', ()=>{
-      inputValue.push(button.textContent);
-      inputString = inputValue.join('');
-      console.log("Input value =" + inputValue);
-      console.log("Input string =" + inputString);
-      return inputString + parseInput();
+function getNextOperand (){
+        display.value=nextOperand;
+        numbers.forEach(number => {
+        number.addEventListener('click', ()=>{
+        inputArr.push(number.textContent); 
+        numString = inputArr.join('');
+        console.log("Input string =" + numString);
+        if (numString!==undefined){
+            nextOperand=parseFloat(numString);
+            
+        };
+        console.log('Next operand= ' + nextOperand);
+        display.value=nextOperand;
+        });
+        return nextOperand;
     });
-});
+};
 
-function parseInput(){
 
-    operator = inputString.match(operators);
-    operIndex = inputString.indexOf(operator);
-    console.log('Index of the first operator= ' + operIndex);
-  
-    if (operIndex>0){
-        firstOperand=parseFloat(inputString.slice(0, operIndex));
-    } else if (operIndex==0){
-        firstOperand=defaultOperand;
+function getOperator(){
+    operators.forEach(operator =>{
+        operator.addEventListener('click', ()=>{
+            operArr.push(operator.textContent);
+            currentOper=operArr[operArr.length-1];
+            inputArr=[];
+            if (operArr[operArr.length-2]!==undefined){
+                calculate();
+              };
+            getPreviousOperand();
+            decimal.disabled=false; 
+        });
+    });
+};
+
+function getDecimal (){
+    decimal.addEventListener('click', ()=>{
+        inputArr.push(decimal.textContent); 
+        decimal.disabled=true; 
+    });
+};
+
+function getPreviousOperand(){
+    if (result!==undefined){
+        previousOperand=result;
     } else {
-        firstOperand=parseFloat(inputString);
+        previousOperand = (nextOperand+0);
     };
+    console.log('Next operand= ' + nextOperand);
+    console.log('Previous operand= ' + previousOperand);
+};
 
-    if (operIndex>=0 && (operIndex+1)!==undefined){
-        secondOperand = parseFloat(inputString.slice(operIndex+1));
-    };
-
-
-    console.log('First operand= ' + firstOperand);
-    console.log('Second operand= ' + secondOperand);
-    display.value=inputString;
-    return [firstOperand, secondOperand] + calculate();
+function getResult(){
+    equalSign.addEventListener('click', ()=>{
+        operArr[operArr.length-2] = currentOper;
+        console.log('Equal sign pressed');
+        calculate();
+        nextOperand=undefined;
+      });
 };
 
 function calculate(){
-    if (operator==`+` && secondOperand!==undefined && secondOperand!==NaN){
-       addition();
-    };
+    switch (operArr[operArr.length-2]) {
+        case '+':
+            result = previousOperand + nextOperand;
+            display.value = result;
+            inputArr=[];
+            numString='';
+            console.log('Result= ' + result);
+            break;
+        case '-':
+            result = previousOperand - nextOperand;    
+            display.value = result;
+            inputArr=[];
+            numString='';
+            console.log('Result= ' + result);
+            break;
+        case '*':
+            result = previousOperand * nextOperand;    
+            display.value = result;
+            inputArr=[];
+            numString='';
+            console.log('Result= ' + result);
+            break;
+        case '/':
+            result = previousOperand / nextOperand;    
+            
+            if (result==Infinity){
+                display.value = "Error. Dividing at 0 detected!";
+                inputArr=[];
+                numString='';
+                operArr=[];
+                result=undefined;
+                nextOperand=0;
+            } else { 
+            display.value = result;
+            };
+            console.log('Result= ' + result);
+            break;
+    }; 
 };
 
-function addition(){
-
-  result = firstOperand + secondOperand;
-//   firstOperand=result;
-  
-  console.log('First operand= ' + firstOperand);
-  console.log(result);
-  if (result!==NaN){
-      display.value = result;
-      inputValue=[]; 
-    }else {
-          display.value=inputString;
-      };
-//   inputValue=[]; // тут нужен if, иначе обнуляется само
-  
+function clearAll(){
+    ac.addEventListener('click', ()=>{
+        inputArr=[];
+        numString='';
+        operArr=[];
+        result=undefined;
+        nextOperand=0;
+        getPreviousOperand();
+        decimal.disabled=false; 
+        display.value = nextOperand;
+    });
 };
 
+function clearInput(){
+    inputArr=[];
+    numString='';
+    operArr=[];
+    decimal.disabled=false; 
+};
 
-
-
-
-
- // console.log("Default oprand= " + defaultfirstOperand);
-    // console.log("Operator =" + operator);
-    // console.log("firstOperand =" + firstOperand);
-    // console.log("Input string after = ")+ inputString;
-
-    // operIndex = function(){
-    //     operIndexArr =[];
-    //     for(i=1; i<operator.length; i++){
-    //         operIndex[i]=inputString.indexOf(operator);
-    //     };
-    // }; 
+getNextOperand();
+getOperator();
+getResult()
+calculate();
+clearAll();
+getDecimal();
+clearInput();
